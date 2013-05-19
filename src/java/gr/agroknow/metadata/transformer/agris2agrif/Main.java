@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import net.zettadata.generator.tools.Toolbox;
-
 import org.apache.commons.io.FileUtils;
 
 

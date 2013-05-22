@@ -670,7 +670,12 @@ import net.zettadata.generator.tools.ToolboxException;
 			}
 		}
 	}
-	
+
+	"<ags:subjectClassification".+"scheme=\"dcterms:"
+	{
+		tmp = new StringBuilder() ;
+		yybegin( CLASSIFICATION ) ;
+	}
 
 	"<ags:subjectClassification".+"scheme=\"ags:"
 	{

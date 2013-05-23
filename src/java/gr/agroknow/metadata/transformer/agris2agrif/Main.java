@@ -109,8 +109,8 @@ public class Main
 				wrong++ ;
 				FileUtils.copyFile( new File(inputFolder + File.separator + agris) , new File( badFolder + File.separator + agris ) )  ;
 				System.out.println( "Wrong file : " + agris ) ;
-				e.printStackTrace() ;
-				System.exit( -1 ) ;
+				//e.printStackTrace() ;
+				//System.exit( -1 ) ;
 			}
 			finally
 			{

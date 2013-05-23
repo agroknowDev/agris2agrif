@@ -129,6 +129,8 @@ import net.zettadata.generator.tools.ToolboxException;
 %state CITATION
 %state COVERAGE
 %state URL
+%state LKEYWORD
+%state KEYWORD
 
 %%
 
@@ -138,6 +140,14 @@ import net.zettadata.generator.tools.ToolboxException;
 	{
 		yybegin( RESOURCES ) ;
 		agrifs = new ArrayList<Agrif>() ;
+	}
+	
+	"<ags:resource".+"ags:ARN=\"\""
+	{
+		agrifs = new ArrayList<Agrif>() ;
+		init() ;
+		agrif.setOrigin( providerId, "" ) ;
+		yybegin( AGRIF ) ;
 	}
 	
 	"<ags:resource".+"ags:ARN=\""
@@ -193,7 +203,7 @@ import net.zettadata.generator.tools.ToolboxException;
 		yybegin( RESOURCES ) ;
 	}
 	
-	"<dc:title xml:lang=\""
+	"<dc:title".+"xml:lang=\""
 	{
 		yybegin( LTITLE ) ;
 		tmp = new StringBuilder() ;
@@ -230,28 +240,28 @@ import net.zettadata.generator.tools.ToolboxException;
 	}
 	
 	
-	"<dc:creator>"
+	"<dc:creator>"|"<dc:creator xmlns:dc=\"http://purl.org/dc/elements/1.1/\">"
 	{
 		yybegin( CREATOR ) ;
 	}
 	
-	"<dc:publisher>"
+	"<dc:publisher>"|"<dc:publisher xmlns:dc=\"http://purl.org/dc/elements/1.1/\">"
 	{
 		yybegin( PUBLISHER ) ;
 	}
 	
-	"<dc:date>"
+	"<dc:date>"|"<dc:date xmlns:dc=\"http://purl.org/dc/elements/1.1/\">"
 	{
 		yybegin( DATE ) ;
 	}
 	
-	"<dc:subject>"
+	"<dc:subject>"|"<dc:subject xmlns:dc=\"http://purl.org/dc/elements/1.1/\">"
 	{
 		yybegin( SUBJECT ) ;
 		tmp = new StringBuilder() ;	
 	}
 	
-	"<dc:description>"
+	"<dc:description>"|"<dc:description xmlns:dc="http://purl.org/dc/elements/1.1/">"
 	{
 		yybegin( DESCRIPTION ) ;
 	}
@@ -278,7 +288,7 @@ import net.zettadata.generator.tools.ToolboxException;
 		expression.setLanguage( tmpLanguage ) ;	
 	}
 	
-	"<dc:language scheme=\"dcterms:ISO639-2\">".+"</dc:language>"
+	"<dc:language".+"scheme=\"dcterms:ISO639-2\">".+"</dc:language>"
 	{
 		String tmpLanguage = extract( yytext() ) ;
 		try
@@ -289,7 +299,7 @@ import net.zettadata.generator.tools.ToolboxException;
 		expression.setLanguage( tmpLanguage ) ;	
 	}
 	
-	"<agls:availability>"|"<ags:availability>"
+	"<agls:availability>"|"<ags:availability>"|"<agls:availability xmlns:agls=\"http://www.naa.gov.au/recordkeeping/gov_online/agls/1.2\">"
 	{
 		yybegin( AVAILABILITY ) ;
 		tmpItem = new Item() ;
@@ -301,7 +311,7 @@ import net.zettadata.generator.tools.ToolboxException;
 		cblock.setType( "dc:type", extract( yytext() ) ) ;
 	}
 
-	"<dc:format>"
+	"<dc:format>"|"<dc:format xmlns:dc=\"http://purl.org/dc/elements/1.1/\">"
 	{
 		yybegin( FORMAT ) ;
 	}
@@ -670,6 +680,18 @@ import net.zettadata.generator.tools.ToolboxException;
 			}
 		}
 	}
+	
+	"<ags:subjectThesaurus xml:lang=\""
+	{
+		yybegin( LKEYWORD ) ;
+		tmp = new StringBuilder() ;
+	}
+
+    "<ags:subjectClassification xml:lang=\""
+    {
+    	yybegin( LKEYWORD ) ;
+		tmp = new StringBuilder() ;
+    }
 
 	"<ags:subjectClassification".+"scheme=\"dcterms:"
 	{
@@ -697,6 +719,45 @@ import net.zettadata.generator.tools.ToolboxException;
 		}
 	}
 	
+}
+
+<LKEYWORD>
+{
+	"\">"
+	{
+		language = tmp.toString() ;
+		if ( language.length() == 3 )
+		{
+			try
+			{
+				language = Toolbox.getInstance().toISO6391( language ) ;
+			}
+			catch( ToolboxException te )
+			{
+			}
+		}
+		yybegin( KEYWORD ) ;
+		tmp = new StringBuilder() ;
+	}
+	
+	.
+	{
+		tmp.append( yytext() ) ;
+	}
+}
+
+<KEYWORD>
+{
+	"</ags:subjectThesaurus>"|"</ags:subjectClassification>"
+	{
+		lblock.setKeyword( language, tmp.toString() ) ;
+		yybegin( SUBJECT ) ;	
+	}
+	
+	.
+	{
+		tmp.append( yytext() ) ;
+	}
 }
 
 <CLASSIFICATION>

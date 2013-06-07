@@ -1,6 +1,7 @@
 package gr.agroknow.metadata.transformer.agris2agrif;
 
 import gr.agroknow.metadata.agrif.Agrif;
+import gr.agroknow.metadata.transformer.ParamManager;
 
 import java.io.File;
 import java.io.FileReader;

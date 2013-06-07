@@ -11,6 +11,8 @@ import gr.agroknow.metadata.agrif.Manifestation;
 import gr.agroknow.metadata.agrif.Relation;
 import gr.agroknow.metadata.agrif.Rights;
 
+import gr.agroknow.metadata.transformer.ParamManager;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;

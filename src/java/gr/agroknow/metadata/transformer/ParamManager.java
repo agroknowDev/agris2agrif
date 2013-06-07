@@ -1,4 +1,4 @@
-package gr.agroknow.metadata.transformer.agris2agrif;
+package gr.agroknow.metadata.transformer;
 
 import net.zettadata.generator.tools.Toolbox;
 import net.zettadata.generator.tools.ToolboxException;

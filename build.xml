@@ -81,8 +81,10 @@
     		<arg value="TEST"/>
         	<arg value="-manifestation"/>
         	<arg value="landingPage"/>
-        	<!--arg value="-potentialLanguages"/-->
-        	<!--arg value="en,es"/-->
+        	<arg value="-mtdLanguage"/>
+        	<arg value="pt"/>
+        	<!--arg value="-potentialLanguages"/>
+        	<arg value="en,pt"/-->
         </java>
     </target>
 

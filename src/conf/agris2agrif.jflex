@@ -213,30 +213,8 @@ import net.zettadata.generator.tools.ToolboxException;
 	
 	"<dc:title>".+"</dc:title>"
 	{
-		String tmptitle = extract( yytext() ) ;
-		if ( mtdLanguage != null )
-		{ 
-			lblock.setTitle( mtdLanguage, tmptitle ) ;
-		}
-		else
-		{
-			if ( potentialLanguages == null )
-			{
-				try
-				{
-					lblock.setTitle( Toolbox.getInstance().detectLanguage( tmptitle ) , tmptitle ) ;
-				}
-				catch ( ToolboxException te){}
-			}
-			else
-			{
-				try
-				{
-					lblock.setTitle( Toolbox.getInstance().detectLanguage( tmptitle, potentialLanguages ) , tmptitle ) ;
-				}
-				catch ( ToolboxException te){}
-			}
-		}
+		String text = extract( yytext() ) ;
+		lblock.setTitle( ParamManager.getInstance().getLanguageFor(text), text ) ;
 	}
 	
 	
@@ -421,7 +399,6 @@ import net.zettadata.generator.tools.ToolboxException;
 		manifestation.setFormat( extract( yytext() ) ) ;
 	}
     
-
 }
 
 <AVAILABILITY>
@@ -534,34 +511,8 @@ import net.zettadata.generator.tools.ToolboxException;
 	"</ags:descriptionNotes>"
 	{
 		yybegin( DESCRIPTION ) ;
-		String tmpabstract = tmp.toString() ;
-		if ( language != null )
-		{ 
-			lblock.setNotes( language, tmpabstract ) ;
-		}
-		else if ( mtdLanguage != null )
-		{ 
-			lblock.setNotes( mtdLanguage, tmpabstract ) ;
-		}
-		else
-		{
-			if ( potentialLanguages == null )
-			{
-				try
-				{
-					lblock.setNotes( Toolbox.getInstance().detectLanguage( tmpabstract ) , tmpabstract ) ;
-				}
-				catch ( ToolboxException te){}
-			}
-			else
-			{
-				try
-				{
-					lblock.setNotes( Toolbox.getInstance().detectLanguage( tmpabstract, potentialLanguages ) , tmpabstract ) ;
-				}
-				catch ( ToolboxException te){}
-			}
-		}
+		String text = tmp.toString() ;
+		lblock.setNotes( ParamManager.getInstance().getLanguageFor(text), text ) ;
 	}
 	
 	.
@@ -600,34 +551,8 @@ import net.zettadata.generator.tools.ToolboxException;
 	"</dcterms:abstract>"
 	{
 		yybegin( DESCRIPTION ) ;
-		String tmpabstract = tmp.toString() ;
-		if ( language != null )
-		{ 
-			lblock.setAbstract( language, tmpabstract ) ;
-		}
-		else if ( mtdLanguage != null )
-		{ 
-			lblock.setAbstract( mtdLanguage, tmpabstract ) ;
-		}
-		else
-		{
-			if ( potentialLanguages == null )
-			{
-				try
-				{
-					lblock.setAbstract( Toolbox.getInstance().detectLanguage( tmpabstract ) , tmpabstract ) ;
-				}
-				catch ( ToolboxException te){}
-			}
-			else
-			{
-				try
-				{
-					lblock.setAbstract( Toolbox.getInstance().detectLanguage( tmpabstract, potentialLanguages ) , tmpabstract ) ;
-				}
-				catch ( ToolboxException te){}
-			}
-		}
+		String text = tmp.toString() ;
+		lblock.setAbstract( ParamManager.getInstance().getLanguageFor(text), text ) ;
 	}
 	
 	"&lt;![CDATA[" {}
@@ -651,32 +576,10 @@ import net.zettadata.generator.tools.ToolboxException;
 		yybegin( AGRIF ) ;
 		if (tmp != null )
 		{
-			String subject = tmp.toString().trim() ;
-			if ( !subject.isEmpty() )
+			String text = tmp.toString().trim() ;
+			if ( !text.isEmpty() )
 			{
-				if ( mtdLanguage != null )
-				{ 
-					lblock.setKeyword( mtdLanguage, subject ) ;
-				}
-				else
-				{
-					if ( potentialLanguages == null )
-					{
-						try
-						{
-							lblock.setKeyword( Toolbox.getInstance().detectLanguage( subject ) , subject ) ;
-						}
-						catch ( ToolboxException te){}
-					}
-					else
-					{
-						try
-						{
-							lblock.setKeyword( Toolbox.getInstance().detectLanguage( subject, potentialLanguages ), subject ) ;
-						}
-						catch ( ToolboxException te){}
-					}
-				}
+				lblock.setKeyword( ParamManager.getInstance().getLanguageFor(text), text ) ;
 			}
 		}
 	}

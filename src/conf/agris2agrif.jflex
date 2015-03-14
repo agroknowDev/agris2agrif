@@ -133,6 +133,7 @@ import net.zettadata.generator.tools.ToolboxException;
 %state URL
 %state LKEYWORD
 %state KEYWORD
+%state LCITATIONTITLE
 
 %%
 
@@ -144,7 +145,7 @@ import net.zettadata.generator.tools.ToolboxException;
 		agrifs = new ArrayList<Agrif>() ;
 	}
 	
-	"<ags:resource".+"ags:ARN=\"\""
+	"<ags:resource".+"ags:ARN=\"\"" 
 	{
 		agrifs = new ArrayList<Agrif>() ;
 		init() ;
@@ -159,6 +160,8 @@ import net.zettadata.generator.tools.ToolboxException;
 		yybegin( ARN ) ;
 		tmp = new StringBuilder() ; 
 	}
+       
+
 }
 
 <RESOURCES>
@@ -174,6 +177,15 @@ import net.zettadata.generator.tools.ToolboxException;
 		yybegin( ARN ) ;
 		tmp = new StringBuilder() ; 
 	}
+
+        /* 12.1.2014 In case there is nor ARN
+        "<ags:resource"
+	{
+		init() ;
+		yybegin( AGRIF ) ;
+		
+	}
+*/
 }
 
 <ARN>
@@ -235,7 +247,7 @@ import net.zettadata.generator.tools.ToolboxException;
 		yybegin( DATE ) ;
 	}
 	
-	"<dc:subject>"|"<dc:subject xmlns:dc=\"http://purl.org/dc/elements/1.1/\">"
+	"<dc:subject>"|"<dc:subject xmlns:dc=\"http://purl.org/dc/elements/1.1/\">"|"<dc:subject xml:lang=\"en\">"
 	{
 		yybegin( SUBJECT ) ;
 		tmp = new StringBuilder() ;	
@@ -301,6 +313,7 @@ import net.zettadata.generator.tools.ToolboxException;
 		yybegin( CITATION ) ;
 		citation = new Citation() ;
 	}
+		
 	
 	"<dc:coverage>"
 	{
@@ -361,17 +374,38 @@ import net.zettadata.generator.tools.ToolboxException;
 	{
 		citation.setTitle( extract( yytext() ) ) ;
 	}
+		
+	"<ags:citationTitle xml:lang=\"en\">".+"</ags:citationTitle>"
+	{
+		citation.setTitle( extract( yytext() ) ) ;
+	}
+	
+	"<ags:citationTitle xml:lang=\"cn\">".+"</ags:citationTitle>"
+	{
+		citation.setTitle( extract( yytext() ) ) ;
+	}
+	
+	"<ags:citationTitle xml:lang=\"cn\">".+"</ags:citationTitle>"
+	{
+		citation.setTitle( extract( yytext() ) ) ;
+	}
+		
 	
 	"<ags:citationIdentifier scheme=\"ags:ISSN\">".+"</ags:citationIdentifier>"
 	{
 		citation.setIdentifier( "ISSN", extract( yytext() ) ) ;
 	}
 
-    "<ags:citationNumber>".+"</ags:citationNumber>"
-    {
-    	citation.setCitationNumber( extract( yytext() ) ) ;
-    }
+	"<ags:citationChronology>".+"</ags:citationChronology>"
+	{
+		citation.setCitationChronology( extract( yytext() ) ) ;
+	}
     
+        "<ags:citationNumber>".+"</ags:citationNumber>"
+       {
+                citation.setCitationNumber( extract( yytext() ) ) ;
+        }
+	
 }
 
 <FORMAT>
@@ -557,13 +591,13 @@ import net.zettadata.generator.tools.ToolboxException;
 		lblock.setAbstract( ParamManager.getInstance().getLanguageFor(text), text ) ;
 	}
 	
-	"&lt;![CDATA[" {}
+	//"&lt;![CDATA[" {}
 	
-	"<![CDATA[" {}
+	//"<![CDATA[" {}
 	
-	"]]&gt;" {}
+	//"]]&gt;" {}
 	
-	"]]>" {}	
+	//"]]>" {}	
 	
 	.
 	{
@@ -598,6 +632,20 @@ import net.zettadata.generator.tools.ToolboxException;
 		tmp = new StringBuilder() ;
     }
 
+    "<dc:subject xml:lang=\""
+    {
+    	yybegin( LKEYWORD ) ;
+		tmp = new StringBuilder() ;
+    }
+	
+	
+    "<ags:subjectClassification"	 
+    {
+    	yybegin( LKEYWORD ) ;
+		tmp = new StringBuilder() ;
+		tmp.append( "en" ) ;
+    }
+	
 	"<ags:subjectClassification".+"scheme=\"dcterms:"
 	{
 		tmp = new StringBuilder() ;
@@ -610,11 +658,13 @@ import net.zettadata.generator.tools.ToolboxException;
 		yybegin( CLASSIFICATION ) ;
 	}
 	
+	
 	"<ags:subjectThesaurus".+"scheme=\"ags:"
 	{
 		tmp = new StringBuilder() ;
 		yybegin( THESAURUS ) ;
 	}
+		
 	
 	.
 	{
@@ -628,7 +678,7 @@ import net.zettadata.generator.tools.ToolboxException;
 
 <LKEYWORD>
 {
-	"\">"
+	"\">"|">"
 	{
 		language = tmp.toString() ;
 		if ( language.length() == 3 )
@@ -653,7 +703,7 @@ import net.zettadata.generator.tools.ToolboxException;
 
 <KEYWORD>
 {
-	"</ags:subjectThesaurus>"|"</ags:subjectClassification>"
+	"</ags:subjectThesaurus>"|"</ags:subjectClassification>"|"</dc:subject>"
 	{
 		lblock.setKeyword( language, tmp.toString() ) ;
 		yybegin( SUBJECT ) ;	
@@ -734,11 +784,11 @@ import net.zettadata.generator.tools.ToolboxException;
 		yybegin( AGRIF ) ;
 	}
 
-	"<dcterms:dateIssued>".+"</dcterms:dateIssued>"
+	"<dcterms:dateIssued>".+"</dcterms:dateIssued>"|"<dcterms:dateIssued scheme=\"dcterms:W3CDTF\">".+"</dcterms:dateIssued>"
 	{
 		expression.setDateIssued( extract( yytext() ) ) ;
 		// System.out.println( extract( yytext() ) ) ;
-	}
+	}       
 
 }
 
@@ -752,6 +802,17 @@ import net.zettadata.generator.tools.ToolboxException;
 	"<ags:publisherName>".+"</ags:publisherName>"
 	{
 		expression.setPublisher( extract( yytext() ), null, null ) ;
+	}
+
+         "<ags:publisherDate>".+"</ags:publisherDate>"
+	{
+		expression.setPublisher( null,  extract( yytext() ), null ) ;
+	}
+
+
+        "<ags:publisherPlace>".+"</ags:publisherPlace>"
+	{
+		expression.setPublisher( null, null, extract( yytext() ) ) ;
 	}
 
 }
@@ -782,6 +843,20 @@ import net.zettadata.generator.tools.ToolboxException;
 	}		
 }
 
+<LCITATIONTITLE>
+{
+
+	"\">"
+	{
+		citation.setTitle( extract( yytext() ) ) ;
+	}
+	yybegin( CITATION ) ;
+	
+	.
+	{
+		tmp.append( yytext() ) ;
+	}
+}
 
 <LTITLE>
 {	
